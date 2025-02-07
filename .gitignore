@@ -1,0 +1,26 @@
+# Flutter/Dart specific files
+.dart_tool/
+.packages
+build/
+pubspec.lock
+
+# IDE & Editor settings
+.idea/
+.vscode/
+*.iml
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log
+
+# Dependency caching (if using Firebase or Android/Gradle)
+android/.gradle/
+android/app/debug.keystore
+
+# Flutter specific files
+.flutter-plugins
+.flutter-plugins-dependencies
+.metadata
