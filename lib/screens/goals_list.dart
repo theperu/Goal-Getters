@@ -112,51 +112,67 @@ class _GoalsListState extends State<GoalsList> {
     final currentWeek = _getWeekOfYear(_selectedDate);
     final currentYear = _selectedDate.year;
     
-    if (widget.type == "weekly") {  // Weekly Goals
-      return Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.arrow_left),
-              onPressed: () => _changeWeek(-1),
+    return Container(
+      decoration: const BoxDecoration(
+        color: Color(0xFF3883b1),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(36.0),
+          bottomRight: Radius.circular(36.0),
+        ),
+      ),
+      padding: const EdgeInsets.fromLTRB(12.0, 12.0, 12.0, 40.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          GestureDetector(
+            onTap: () { 
+              if (widget.type == 'weekly') {
+                _changeWeek(-1);
+              } else {
+                _changeYear(-1);
+              }
+            }, // Go to previous year/week
+            child: const Icon(
+              Icons.keyboard_arrow_left_outlined,
+              color: Colors.white,
+              size: 28.0,
             ),
+          ),
+          if (widget.type == "weekly")
             Text(
               'Week $currentWeek, $currentYear',
-              style: Theme.of(context).textTheme.titleMedium,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 40.0,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            IconButton(
-              icon: const Icon(Icons.arrow_right),
-              onPressed: () => _changeWeek(1),
-            ),
-          ],
-        ),
-      );
-    } else if (widget.type == "yearly") {  // Yearly Goals
-      return Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.arrow_left),
-              onPressed: () => _changeYear(-1),
-            ),
+          if (widget.type == "yearly")
             Text(
               '$currentYear',
-              style: Theme.of(context).textTheme.titleMedium,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 40.0,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            IconButton(
-              icon: const Icon(Icons.arrow_right),
-              onPressed: () => _changeYear(1),
+          GestureDetector(
+            onTap: () { 
+              if (widget.type == 'weekly') {
+                _changeWeek(1);
+              } else {
+                _changeYear(1);
+              }
+            }, // Go to next year/week
+            child: const Icon(
+              Icons.keyboard_arrow_right_outlined,
+              color: Colors.white,
+              size: 32.0,
             ),
-          ],
-        ),
-      );
-    } else {  // Dashboard
-      return const SizedBox.shrink();  // Empty for now
-    }
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildBody() {
@@ -172,6 +188,7 @@ class _GoalsListState extends State<GoalsList> {
         ).toList();
 
         return ListView.builder(
+          padding: EdgeInsets.zero,
           itemCount: weeklyGoals.length,
           itemBuilder: (context, index) {
             final goal = weeklyGoals[index];
@@ -197,10 +214,10 @@ class _GoalsListState extends State<GoalsList> {
               onDelete: _deleteGoal,
               onUpdateStatus: _updateGoalStatus,
               statusColors: const {
-                'Todo 📝': Colors.grey,
-                'In Progress ⌛': Colors.blue,
-                'Done ✅': Color.fromARGB(255, 82, 171, 86),
-                'Blocked ⛔': Color.fromARGB(255, 232, 85, 74),
+                'Todo 📝': Color(0xFFF8F8F8),
+                'In Progress ⌛': Color(0xFF3883b1),
+                'Done ✅': Color(0xFF3cbb6d),
+                'Blocked ⛔': Color(0xFFbb3c3c),
               },
             );
           },
@@ -220,10 +237,10 @@ class _GoalsListState extends State<GoalsList> {
             onDelete: _deleteGoal,
             onUpdateStatus: _updateGoalStatus,
             statusColors: const {
-              'Todo 📝': Colors.grey,
-              'In Progress ⌛': Colors.blue,
-              'Done ✅': Color.fromARGB(255, 82, 171, 86),
-              'Blocked ⛔': Color.fromARGB(255, 232, 85, 74),
+              'Todo 📝': Color(0xFFF8F8F8),
+              'In Progress ⌛': Color(0xFF3883b1),
+              'Done ✅': Color(0xFF3cbb6d),
+              'Blocked ⛔': Color(0xFFbb3c3c),
             },
           ),
         );
@@ -234,13 +251,16 @@ class _GoalsListState extends State<GoalsList> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        _buildNavigationBar(),
-        Expanded(
-          child: _buildBody(),
-        ),
-      ],
+    return Scaffold(
+      backgroundColor: Colors.black54,
+      body: Column(
+        children: [
+          _buildNavigationBar(),
+          Expanded(
+            child: _buildBody(),
+          ),
+        ],
+      )
     );
   }
 }

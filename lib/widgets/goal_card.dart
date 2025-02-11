@@ -29,16 +29,16 @@ class _GoalCardState extends State<GoalCard> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.all(8),
+      color: widget.statusColors[widget.goal.status], // Background color is status color
+      margin: const EdgeInsets.all(2),
       elevation: 4,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(30),
       ),
       child: InkWell(
         onTap: () => setState(() => _isExpanded = !_isExpanded),
-        borderRadius: BorderRadius.circular(12),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -52,6 +52,7 @@ class _GoalCardState extends State<GoalCard> {
                       widget.goal.name,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
+                        color: Colors.black, // Black text
                       ),
                     ),
                   ),
@@ -73,7 +74,7 @@ class _GoalCardState extends State<GoalCard> {
                           children: [
                             Icon(Icons.circle, color: widget.statusColors[status], size: 12),
                             const SizedBox(width: 8),
-                            Text(status),
+                            Text(status, style: const TextStyle(color: Colors.black)), // Black text
                           ],
                         ),
                       );
@@ -81,7 +82,7 @@ class _GoalCardState extends State<GoalCard> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: widget.statusColors[widget.goal.status]!.withOpacity(0.1),
+                        color: Colors.white, // White background for contrast
                         border: Border.all(color: widget.statusColors[widget.goal.status]!, width: 2),
                         borderRadius: BorderRadius.circular(16),
                       ),
@@ -91,8 +92,8 @@ class _GoalCardState extends State<GoalCard> {
                           const SizedBox(width: 6),
                           Text(
                             widget.goal.status,
-                            style: TextStyle(
-                              color: widget.statusColors[widget.goal.status],
+                            style: const TextStyle(
+                              color: Colors.black, // Black text
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -105,34 +106,37 @@ class _GoalCardState extends State<GoalCard> {
 
               const SizedBox(height: 12),
 
-              // Difficulty & Importance
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
+              // Difficulty & Importance (Now in a Row & Thin)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Chip(
-                    label: Text('Difficulty: ${widget.goal.difficulty}'),
-                    avatar: const Icon(Icons.bar_chart, size: 18),
+                  Text(
+                    'Difficulty: ${widget.goal.difficulty}',
+                    style: const TextStyle(fontWeight: FontWeight.w400, color: Colors.black),
                   ),
-                  Chip(
-                    label: Text('Importance: ${widget.goal.importance}'),
-                    avatar: const Icon(Icons.priority_high, size: 18),
+                  const SizedBox(width: 12),
+                  Text(
+                    'Importance: ${widget.goal.importance}',
+                    style: const TextStyle(fontWeight: FontWeight.w400, color: Colors.black),
                   ),
                 ],
               ),
 
               if (_isExpanded) ...[
                 const SizedBox(height: 12),
-                const Divider(),
+                const Divider(color: Colors.black),
 
                 // Related Goal
                 if (widget.relatedGoal != null)
                   Chip(
-                    label: Text('Related to: ${widget.relatedGoal!.name}'),
-                    avatar: const Icon(Icons.link, size: 18),
-                    backgroundColor: Theme.of(context).colorScheme.secondary.withOpacity(0.2),
+                    label: Text(
+                      'Related to: ${widget.relatedGoal!.name}',
+                      style: const TextStyle(color: Colors.black), // Ensure text is black
+                    ),
+                    avatar: const Icon(Icons.link, size: 18, color: Colors.black), // Black icon
+                    backgroundColor: const Color(0xFFE0E0E0), // Light grey background
                   ),
-
+                  
                 // Notes Section
                 if (widget.goal.notes.isNotEmpty) ...[
                   const SizedBox(height: 12),
@@ -140,19 +144,19 @@ class _GoalCardState extends State<GoalCard> {
                     'Notes:',
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.primary,
+                      color: Colors.black,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     widget.goal.notes,
-                    style: Theme.of(context).textTheme.bodyMedium,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.black),
                   ),
                 ],
 
                 const SizedBox(height: 12),
-                if(widget.goal.relatedYearlyGoalId != null || widget.goal.notes.isNotEmpty)
-                  const Divider(),
+                if (widget.goal.relatedYearlyGoalId != null || widget.goal.notes.isNotEmpty)
+                  const Divider(color: Colors.black),
 
                 // Edit & Delete Buttons
                 Row(
@@ -160,14 +164,13 @@ class _GoalCardState extends State<GoalCard> {
                   children: [
                     TextButton.icon(
                       onPressed: () => widget.onEdit(widget.goal),
-                      icon: const Icon(Icons.edit, size: 18),
-                      label: const Text("Edit"),
+                      icon: const Icon(Icons.edit, size: 18, color: Colors.black),
+                      label: const Text("Edit", style: TextStyle(color: Colors.black)),
                     ),
                     TextButton.icon(
                       onPressed: () => widget.onDelete(widget.goal),
-                      icon: const Icon(Icons.delete, size: 18),
-                      label: const Text("Delete"),
-                      style: TextButton.styleFrom(foregroundColor: Theme.of(context).colorScheme.error),
+                      icon: const Icon(Icons.delete, size: 18, color: Colors.black),
+                      label: const Text("Delete", style: TextStyle(color: Colors.black)),
                     ),
                   ],
                 ),
@@ -178,4 +181,5 @@ class _GoalCardState extends State<GoalCard> {
       ),
     );
   }
+
 }

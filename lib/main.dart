@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'screens/home_page.dart';
 
 void main() {
@@ -14,23 +15,17 @@ class GoalGettersApp extends StatelessWidget {
       title: 'Goal Getters',
       theme: ThemeData(
         useMaterial3: true,
+        fontFamily: 'Poppins',
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF4AB5F7),
+          seedColor: const Color(0xFF3883b1),
           brightness: Brightness.dark,
-          surface: const Color(0xFF1F2429),
+          surface: Colors.black54,
           error: Colors.red,
           onPrimary: Colors.white,
           secondary: const Color(0xFF66E0FF),
+          tertiary: const Color.fromARGB(255, 255, 206, 82),
         ),
-        textTheme: const TextTheme(
-          displayLarge: TextStyle(
-            fontSize: 72,
-            fontWeight: FontWeight.bold,
-          ),
-          titleLarge: TextStyle(
-            fontSize: 30
-          ),
-        ),
+        textTheme: GoogleFonts.poppinsTextTheme()
       ),
       home: const HomePage(),
       debugShowCheckedModeBanner: false,

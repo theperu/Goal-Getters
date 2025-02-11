@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:goal_getters/screens/goals_list.dart';
 import 'goal_form.dart';
 import '../models/goal.dart';
 import '../screens/dashboard.dart';
+import 'goals_list.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -15,7 +15,7 @@ class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
   List<Goal> _goals = [];
   late DateTime _selectedDate;
-  
+
   @override
   void initState() {
     super.initState();
@@ -85,7 +85,18 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Goal Tracker'),
+        backgroundColor: const Color(0xFF3883b1),
+        elevation: 0,
+        leading: Builder(
+          builder: (BuildContext context) {
+            return IconButton(
+              icon: const Icon(Icons.menu, color: Colors.white),
+              onPressed: () {
+                Scaffold.of(context).openDrawer(); // Opens the drawer when the hamburger menu is tapped
+              },
+            );
+          },
+        ),
       ),
       body: Column(
         children: [
@@ -94,30 +105,56 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _selectedIndex,
-        onDestinationSelected: (int index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.calendar_today),
-            label: 'Weekly Goals',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.calendar_month_rounded),
-            label: 'Yearly Goals',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.dashboard),
-            label: 'Dashboard',
-          ),
-        ],
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            const DrawerHeader(
+              decoration: BoxDecoration(
+                color: Color(0xFF3883b1),
+              ),
+              child: Text(
+                'Menu',
+                style: TextStyle(color: Colors.white, fontSize: 24),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.calendar_today),
+              title: const Text('Weekly Goals'),
+              onTap: () {
+                setState(() {
+                  _selectedIndex = 0;
+                });
+                Navigator.pop(context); // Close the drawer
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.calendar_month_rounded),
+              title: const Text('Yearly Goals'),
+              onTap: () {
+                setState(() {
+                  _selectedIndex = 1;
+                });
+                Navigator.pop(context); // Close the drawer
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.dashboard),
+              title: const Text('Dashboard'),
+              onTap: () {
+                setState(() {
+                  _selectedIndex = 2;
+                });
+                Navigator.pop(context); // Close the drawer
+              },
+            ),
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _addGoal,
+        foregroundColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.tertiary,
         child: const Icon(Icons.add),
       ),
     );
