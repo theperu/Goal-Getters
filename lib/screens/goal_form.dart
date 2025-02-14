@@ -42,16 +42,13 @@ class _GoalFormState extends State<GoalForm> {
     _notes = widget.goal?.notes ?? '';
     _type = widget.goal?.type ?? 'Weekly';
     _relatedYearlyGoalId = widget.goal?.relatedYearlyGoalId;
-    _week = _weekOfYear();
+    _week = widget.goal?.week ?? _weekOfYear();
     _year = widget.goal?.year ?? DateTime.now().year;
   }
 
   int _weekOfYear() {
     final firstDayOfYear = DateTime(DateTime.now().year, 1, 1);
-    
-    // Calculate days between the date and first day of year
     final difference = DateTime.now().difference(firstDayOfYear);
-    
     return ((difference.inDays + firstDayOfYear.weekday) / 7).ceil();
   }
 
@@ -62,8 +59,6 @@ class _GoalFormState extends State<GoalForm> {
   void _submitForm() {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-
-      // Create new goal or update existing one
       final goal = Goal(
         id: widget.goal?.id ?? _generateId(),
         name: _name,
@@ -74,7 +69,7 @@ class _GoalFormState extends State<GoalForm> {
         type: _type,
         relatedYearlyGoalId: _type == 'Weekly' ? _relatedYearlyGoalId : null,
         week: _type == 'Weekly' ? _week : null,
-        year: _year, 
+        year: _year,
       );
 
       Navigator.pop(context, goal);
@@ -84,249 +79,145 @@ class _GoalFormState extends State<GoalForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFF111827), // Background color
       appBar: AppBar(
         title: Text(widget.goal == null ? 'Add Goal' : 'Edit Goal'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Name field
-              TextFormField(
-                initialValue: _name,
-                decoration: const InputDecoration(
-                  labelText: 'Goal Name',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a goal name';
-                  }
-                  return null;
-                },
-                onSaved: (value) => _name = value!,
+        child: Theme(
+          data: Theme.of(context).copyWith(
+            inputDecorationTheme: InputDecorationTheme(
+              labelStyle: TextStyle(color: Colors.grey.shade400),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.grey.shade400),
               ),
-              const SizedBox(height: 16),
-
-              // Type dropdown
-              DropdownButtonFormField<String>(
-                value: _type,
-                decoration: const InputDecoration(
-                  labelText: 'Goal Type',
-                  border: OutlineInputBorder(),
-                ),
-                items: _types.map((type) {
-                  return DropdownMenuItem(
-                    value: type,
-                    child: Text(type),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _type = value!;
-                    if (_type == 'Yearly') {
-                      _relatedYearlyGoalId = null;
-                      _week = null;
-                    }
-                  });
-                },
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.grey.shade600),
               ),
-              const SizedBox(height: 16),
-
-              if (_type == 'Weekly') ...[
-                Row(
-                  children: [
-                    // Week dropdown
-                    Expanded(
-                      child: DropdownButtonFormField<int>(
-                        value: _week ?? _weekOfYear(),
-                        decoration: const InputDecoration(
-                          labelText: 'Week',
-                          border: OutlineInputBorder(),
-                        ),
-                        items: List.generate(53, (index) => index + 1)
-                            .map((week) => DropdownMenuItem(
-                                  value: week,
-                                  child: Text('Week $week'),
-                                ))
-                            .toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            _week = value;
-                            _year = DateTime.now().year; // Set year when week changes
-                          });
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    // Year dropdown
-                    Expanded(
-                      child: DropdownButtonFormField<int>(
-                        value: _year ?? DateTime.now().year,
-                        decoration: const InputDecoration(
-                          labelText: 'Year',
-                          border: OutlineInputBorder(),
-                        ),
-                        items: List.generate(5, (index) => DateTime.now().year + index - 2)
-                            .map((year) => DropdownMenuItem(
-                                  value: year,
-                                  child: Text(year.toString()),
-                                ))
-                            .toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            _year = value;
-                          });
-                        },
-                      ),
-                    ),
-                  ],
+              border: const OutlineInputBorder(),
+            ),
+          ),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Name field
+                TextFormField(
+                  initialValue: _name,
+                  style: const TextStyle(color: Color(0xFFF3F4F6)), // Light text
+                  decoration: const InputDecoration(labelText: 'Goal Name'),
+                  validator: (value) =>
+                      value == null || value.isEmpty ? 'Please enter a goal name' : null,
+                  onSaved: (value) => _name = value!,
                 ),
                 const SizedBox(height: 16),
-                
-                // Related yearly goal dropdown (only for weekly goals)
-                if (widget.yearlyGoals.isNotEmpty)
-                  DropdownButtonFormField<String?>(
-                    value: _relatedYearlyGoalId,
-                    decoration: const InputDecoration(
-                      labelText: 'Related Yearly Goal (Optional)',
-                      border: OutlineInputBorder(),
-                    ),
-                    items: [
-                      const DropdownMenuItem(
-                        value: null,
-                        child: Text('None'),
-                      ),
-                      ...widget.yearlyGoals.map((goal) {
-                        return DropdownMenuItem(
-                          value: goal.id,
-                          child: Text(goal.name),
-                        );
-                      }),
-                    ],
-                    onChanged: (value) {
-                      setState(() {
-                        _relatedYearlyGoalId = value;
-                      });
-                    },
-                  ),
-                const SizedBox(height: 16),
-              ] else ...[
-                // Year dropdown for non-weekly goals
-                DropdownButtonFormField<int>(
-                  value: _year ?? DateTime.now().year,
-                  decoration: const InputDecoration(
-                    labelText: 'Year',
-                    border: OutlineInputBorder(),
-                  ),
-                  items: List.generate(5, (index) => DateTime.now().year + index - 2)
-                      .map((year) => DropdownMenuItem(
-                            value: year,
-                            child: Text(year.toString()),
-                          ))
-                      .toList(),
+
+                // Type dropdown
+                _buildDropdown(
+                  label: "Goal Type",
+                  value: _type,
+                  items: _types,
                   onChanged: (value) {
                     setState(() {
-                      _year = value;
+                      _type = value!;
+                      if (_type == 'Yearly') {
+                        _relatedYearlyGoalId = null;
+                        _week = null;
+                      }
                     });
                   },
                 ),
                 const SizedBox(height: 16),
+
+                if (_type == 'Weekly') ...[
+                  _buildDropdown(
+                    label: "Week",
+                    value: _week ?? _weekOfYear(),
+                    items: List.generate(53, (index) => index + 1),
+                    onChanged: (value) => setState(() => _week = value),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+
+                _buildDropdown(
+                  label: "Difficulty",
+                  value: _difficulty,
+                  items: _difficulties,
+                  onChanged: (value) => setState(() => _difficulty = value!),
+                ),
+                const SizedBox(height: 16),
+
+                _buildDropdown(
+                  label: "Importance",
+                  value: _importance,
+                  items: _importanceLevels,
+                  onChanged: (value) => setState(() => _importance = value!),
+                ),
+                const SizedBox(height: 16),
+
+                _buildDropdown(
+                  label: "Status",
+                  value: _status,
+                  items: _statusOptions,
+                  onChanged: (value) => setState(() => _status = value!),
+                ),
+                const SizedBox(height: 16),
+
+                // Notes field
+                TextFormField(
+                  initialValue: _notes,
+                  style: const TextStyle(color: Color(0xFFF3F4F6)),
+                  decoration: const InputDecoration(labelText: 'Notes'),
+                  maxLines: 3,
+                  onSaved: (value) => _notes = value ?? '',
+                ),
+                const SizedBox(height: 24),
+
+                // Submit button
+                ElevatedButton(
+                  onPressed: _submitForm,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF3B82F6), // Blue button
+                    padding: const EdgeInsets.all(16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: Text(
+                    widget.goal == null ? 'Add Goal' : 'Save Changes',
+                    style: const TextStyle(fontSize: 16, color: Colors.white),
+                  ),
+                ),
               ],
-
-              // Difficulty dropdown
-              DropdownButtonFormField<String>(
-                value: _difficulty,
-                decoration: const InputDecoration(
-                  labelText: 'Difficulty',
-                  border: OutlineInputBorder(),
-                ),
-                items: _difficulties.map((difficulty) {
-                  return DropdownMenuItem(
-                    value: difficulty,
-                    child: Text(difficulty),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _difficulty = value!;
-                  });
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Importance dropdown
-              DropdownButtonFormField<String>(
-                value: _importance,
-                decoration: const InputDecoration(
-                  labelText: 'Importance',
-                  border: OutlineInputBorder(),
-                ),
-                items: _importanceLevels.map((importance) {
-                  return DropdownMenuItem(
-                    value: importance,
-                    child: Text(importance),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _importance = value!;
-                  });
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Status dropdown
-              DropdownButtonFormField<String>(
-                value: _status,
-                decoration: const InputDecoration(
-                  labelText: 'Status',
-                  border: OutlineInputBorder(),
-                ),
-                items: _statusOptions.map((status) {
-                  return DropdownMenuItem(
-                    value: status,
-                    child: Text(status),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _status = value!;
-                  });
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Notes field
-              TextFormField(
-                initialValue: _notes,
-                decoration: const InputDecoration(
-                  labelText: 'Notes',
-                  border: OutlineInputBorder(),
-                ),
-                maxLines: 3,
-                onSaved: (value) => _notes = value ?? '',
-              ),
-              const SizedBox(height: 24),
-
-              // Submit button
-              ElevatedButton(
-                onPressed: _submitForm,
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.all(16),
-                ),
-                child: Text(
-                  widget.goal == null ? 'Add Goal' : 'Save Changes',
-                  style: const TextStyle(fontSize: 16),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildDropdown<T>({
+    required String label,
+    required T value,
+    required List<T> items,
+    required ValueChanged<T?> onChanged,
+  }) {
+    return DropdownButtonFormField<T>(
+      value: value,
+      style: const TextStyle(color: Color(0xFFF3F4F6)),
+      decoration: InputDecoration(labelText: label),
+      dropdownColor: const Color(0xFF374151), // Slightly lighter grey dropdown
+      items: items
+          .map((item) => DropdownMenuItem(
+                value: item,
+                child: Text(item.toString(), style: const TextStyle(color: Colors.white)),
+              ))
+          .toList(),
+      onChanged: onChanged,
     );
   }
 }

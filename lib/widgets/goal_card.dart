@@ -28,12 +28,20 @@ class _GoalCardState extends State<GoalCard> {
 
   @override
   Widget build(BuildContext context) {
+    // Define status colors
+    final Map<String, Color> statusColors = {
+      'Todo 📝': const Color(0xFF4B5563),
+      'In Progress ⌛': const Color(0xFF3B82F6),
+      'Done ✅': const Color(0xFF10B981),
+      'Blocked ⛔': const Color(0xFFEF4444),
+    };
+
     return Card(
       color: widget.statusColors[widget.goal.status], // Background color is status color
-      margin: const EdgeInsets.all(2),
-      elevation: 4,
+      margin: const EdgeInsets.all(4),
+      elevation: 1,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(30),
+        borderRadius: BorderRadius.circular(28),
       ),
       child: InkWell(
         onTap: () => setState(() => _isExpanded = !_isExpanded),
@@ -52,7 +60,7 @@ class _GoalCardState extends State<GoalCard> {
                       widget.goal.name,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: Colors.black, // Black text
+                        color: const Color(0xFFF3F4F6),
                       ),
                     ),
                   ),
@@ -60,8 +68,7 @@ class _GoalCardState extends State<GoalCard> {
                   // Status Dropdown Button
                   PopupMenuButton<String>(
                     initialValue: widget.goal.status,
-                    onSelected: (String status) =>
-                        widget.onUpdateStatus(widget.goal, status),
+                    onSelected: (String status) => widget.onUpdateStatus(widget.goal, status),
                     itemBuilder: (BuildContext context) => [
                       'Todo 📝',
                       'In Progress ⌛',
@@ -72,9 +79,9 @@ class _GoalCardState extends State<GoalCard> {
                         value: status,
                         child: Row(
                           children: [
-                            Icon(Icons.circle, color: widget.statusColors[status], size: 12),
+                            Icon(Icons.circle, color: statusColors[status], size: 12), // Circle in status color (menu only)
                             const SizedBox(width: 8),
-                            Text(status, style: const TextStyle(color: Colors.black)), // Black text
+                            Text(status, style: const TextStyle(color: Colors.white)), // White text
                           ],
                         ),
                       );
@@ -82,18 +89,16 @@ class _GoalCardState extends State<GoalCard> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: Colors.white, // White background for contrast
-                        border: Border.all(color: widget.statusColors[widget.goal.status]!, width: 2),
+                        color: statusColors[widget.goal.status], // Background color based on status
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Row(
                         children: [
-                          Icon(Icons.circle, color: widget.statusColors[widget.goal.status], size: 12),
-                          const SizedBox(width: 6),
+                          const SizedBox(width: 6), // Keep spacing for alignment
                           Text(
                             widget.goal.status,
                             style: const TextStyle(
-                              color: Colors.black, // Black text
+                              color: Colors.white, // White text
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -112,29 +117,46 @@ class _GoalCardState extends State<GoalCard> {
                 children: [
                   Text(
                     'Difficulty: ${widget.goal.difficulty}',
-                    style: const TextStyle(fontWeight: FontWeight.w400, color: Colors.black),
+                    style: const TextStyle(fontWeight: FontWeight.w400, color: Color(0xFFF3F4F6)),
                   ),
                   const SizedBox(width: 12),
-                  Text(
-                    'Importance: ${widget.goal.importance}',
-                    style: const TextStyle(fontWeight: FontWeight.w400, color: Colors.black),
+                  RichText(
+                    text: TextSpan(
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w400, 
+                        color: Color(0xFFF3F4F6), // White for "Importance:"
+                      ),
+                      children: [
+                        const TextSpan(text: 'Importance: '), // "Importance:" stays white
+                        TextSpan(
+                          text: widget.goal.importance,
+                          style: TextStyle(
+                            color: widget.goal.importance == 'Low 🌱'
+                                ? Color(0xFF44CA77)
+                                : widget.goal.importance == 'Medium 🌿'
+                                    ? Color(0xFFFB923C)
+                                    : Color(0xFFF87171), // Colored based on importance
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
 
               if (_isExpanded) ...[
                 const SizedBox(height: 12),
-                const Divider(color: Colors.black),
+                const Divider(color: const Color(0xFFF3F4F6)),
 
                 // Related Goal
                 if (widget.relatedGoal != null)
                   Chip(
                     label: Text(
                       'Related to: ${widget.relatedGoal!.name}',
-                      style: const TextStyle(color: Colors.black), // Ensure text is black
+                      style: const TextStyle(color: const Color(0xFFF3F4F6)), // Ensure text is black
                     ),
-                    avatar: const Icon(Icons.link, size: 18, color: Colors.black), // Black icon
-                    backgroundColor: const Color(0xFFE0E0E0), // Light grey background
+                    avatar: const Icon(Icons.link, size: 18, color: const Color(0xFFF3F4F6)), // Black icon
+                    backgroundColor: const Color.fromARGB(31, 80, 80, 80), // Light grey background
                   ),
                   
                 // Notes Section
@@ -144,19 +166,19 @@ class _GoalCardState extends State<GoalCard> {
                     'Notes:',
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                      color: const Color(0xFFF3F4F6),
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     widget.goal.notes,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.black),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: const Color(0xFFF3F4F6)),
                   ),
                 ],
 
                 const SizedBox(height: 12),
                 if (widget.goal.relatedYearlyGoalId != null || widget.goal.notes.isNotEmpty)
-                  const Divider(color: Colors.black),
+                  const Divider(color: const Color(0xFFF3F4F6)),
 
                 // Edit & Delete Buttons
                 Row(
@@ -164,13 +186,13 @@ class _GoalCardState extends State<GoalCard> {
                   children: [
                     TextButton.icon(
                       onPressed: () => widget.onEdit(widget.goal),
-                      icon: const Icon(Icons.edit, size: 18, color: Colors.black),
-                      label: const Text("Edit", style: TextStyle(color: Colors.black)),
+                      icon: const Icon(Icons.edit, size: 18, color: const Color(0xFFF3F4F6)),
+                      label: const Text("Edit", style: TextStyle(color: const Color(0xFFF3F4F6))),
                     ),
                     TextButton.icon(
                       onPressed: () => widget.onDelete(widget.goal),
-                      icon: const Icon(Icons.delete, size: 18, color: Colors.black),
-                      label: const Text("Delete", style: TextStyle(color: Colors.black)),
+                      icon: const Icon(Icons.delete, size: 18, color: const Color(0xFFF3F4F6)),
+                      label: const Text("Delete", style: TextStyle(color: const Color(0xFFF3F4F6))),
                     ),
                   ],
                 ),
@@ -181,5 +203,4 @@ class _GoalCardState extends State<GoalCard> {
       ),
     );
   }
-
 }

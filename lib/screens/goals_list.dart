@@ -108,70 +108,110 @@ class _GoalsListState extends State<GoalsList> {
     });
   }
 
+  // Function to get the start and end dates of the week
+  String getWeekDateRange(DateTime date) {
+    int currentWeekday = date.weekday; // Monday = 1, Sunday = 7
+    DateTime startOfWeek = date.subtract(Duration(days: currentWeekday - 1)); // Get Monday
+    DateTime endOfWeek = startOfWeek.add(const Duration(days: 6)); // Get Sunday
+
+    // Format dates as "MMM dd" (e.g., "Feb 12")
+    String formattedStart = "${_getMonthAbbreviation(startOfWeek.month)} ${startOfWeek.day}";
+    String formattedEnd = "${_getMonthAbbreviation(endOfWeek.month)} ${endOfWeek.day}";
+
+    return "$formattedStart - $formattedEnd";
+  }
+
+  // Helper function to get month abbreviation
+  String _getMonthAbbreviation(int month) {
+    const List<String> months = [
+      "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    ];
+    return months[month - 1];
+  }
+
   Widget _buildNavigationBar() {
     final currentWeek = _getWeekOfYear(_selectedDate);
     final currentYear = _selectedDate.year;
     
-    return Container(
-      decoration: const BoxDecoration(
-        color: Color(0xFF3883b1),
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(36.0),
-          bottomRight: Radius.circular(36.0),
+    return Padding(
+      padding: const EdgeInsets.all(12), 
+        child: Card(
+          elevation: 1, // Set elevation to 1
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(36)), // Rounded corners
+          ),
+          color: const Color(0xFF1F2937), // Card background color
+          margin: EdgeInsets.zero, // Remove margin around the card
+          child: Padding(
+            padding: const EdgeInsets.all(28.0), // Padding inside the card
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                GestureDetector(
+                  onTap: () { 
+                    if (widget.type == 'weekly') {
+                      _changeWeek(-1);
+                    } else {
+                      _changeYear(-1);
+                    }
+                  }, // Go to previous year/week
+                  child: const Icon(
+                    Icons.keyboard_arrow_left_outlined,
+                    color: Color(0xFFF3F4F6),
+                    size: 28.0,
+                  ),
+                ),
+                if (widget.type == "weekly")
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Week $currentWeek, $currentYear',
+                        style: const TextStyle(
+                          color: Color(0xFFF3F4F6),
+                          fontSize: 36.0,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                      const SizedBox(height: 2), // Space between texts
+                      Text(
+                        getWeekDateRange(DateTime.now()), // Get this week's range
+                        style: const TextStyle(
+                          color: Color(0xFF9CA3AF),
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ],
+                  ),
+                if (widget.type == "yearly")
+                  Text(
+                    '$currentYear',
+                    style: const TextStyle(
+                      color: Color(0xFFF3F4F6),
+                      fontSize: 40.0,
+                      fontWeight: FontWeight.normal,
+                    ),
+                  ),
+                GestureDetector(
+                  onTap: () { 
+                    if (widget.type == 'weekly') {
+                      _changeWeek(1);
+                    } else {
+                      _changeYear(1);
+                    }
+                  }, // Go to next year/week
+                  child: const Icon(
+                    Icons.keyboard_arrow_right_outlined,
+                    color: Color(0xFFF3F4F6),
+                    size: 32.0,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
-      ),
-      padding: const EdgeInsets.fromLTRB(12.0, 12.0, 12.0, 40.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          GestureDetector(
-            onTap: () { 
-              if (widget.type == 'weekly') {
-                _changeWeek(-1);
-              } else {
-                _changeYear(-1);
-              }
-            }, // Go to previous year/week
-            child: const Icon(
-              Icons.keyboard_arrow_left_outlined,
-              color: Colors.white,
-              size: 28.0,
-            ),
-          ),
-          if (widget.type == "weekly")
-            Text(
-              'Week $currentWeek, $currentYear',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 40.0,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          if (widget.type == "yearly")
-            Text(
-              '$currentYear',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 40.0,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          GestureDetector(
-            onTap: () { 
-              if (widget.type == 'weekly') {
-                _changeWeek(1);
-              } else {
-                _changeYear(1);
-              }
-            }, // Go to next year/week
-            child: const Icon(
-              Icons.keyboard_arrow_right_outlined,
-              color: Colors.white,
-              size: 32.0,
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -188,7 +228,7 @@ class _GoalsListState extends State<GoalsList> {
         ).toList();
 
         return ListView.builder(
-          padding: EdgeInsets.zero,
+          padding: const EdgeInsets.all(8),
           itemCount: weeklyGoals.length,
           itemBuilder: (context, index) {
             final goal = weeklyGoals[index];
@@ -214,10 +254,10 @@ class _GoalsListState extends State<GoalsList> {
               onDelete: _deleteGoal,
               onUpdateStatus: _updateGoalStatus,
               statusColors: const {
-                'Todo 📝': Color(0xFFF8F8F8),
-                'In Progress ⌛': Color(0xFF3883b1),
-                'Done ✅': Color(0xFF3cbb6d),
-                'Blocked ⛔': Color(0xFFbb3c3c),
+                'Todo 📝': Color(0xFF161E2D),
+                'In Progress ⌛': Color(0xFF15233C),
+                'Done ✅': Color(0xFF112930),
+                'Blocked ⛔': Color(0xFF271D2A),
               },
             );
           },
@@ -231,16 +271,17 @@ class _GoalsListState extends State<GoalsList> {
 
         return ListView.builder(
           itemCount: yearlyGoals.length,
+          padding: const EdgeInsets.all(8),
           itemBuilder: (context, index) => GoalCard(
             goal: yearlyGoals[index],
             onEdit: _editGoal,
             onDelete: _deleteGoal,
             onUpdateStatus: _updateGoalStatus,
             statusColors: const {
-              'Todo 📝': Color(0xFFF8F8F8),
-              'In Progress ⌛': Color(0xFF3883b1),
-              'Done ✅': Color(0xFF3cbb6d),
-              'Blocked ⛔': Color(0xFFbb3c3c),
+              'Todo 📝': Color(0xFF161E2D),
+              'In Progress ⌛': Color(0xFF15233C),
+              'Done ✅': Color(0xFF112930),
+              'Blocked ⛔': Color(0xFF271D2A),
             },
           ),
         );
@@ -252,7 +293,7 @@ class _GoalsListState extends State<GoalsList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black54,
+      backgroundColor: Color(0xFF111827),
       body: Column(
         children: [
           _buildNavigationBar(),
@@ -260,7 +301,13 @@ class _GoalsListState extends State<GoalsList> {
             child: _buildBody(),
           ),
         ],
-      )
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _addGoal,
+        foregroundColor: const Color(0xFFF3F4F6),
+        backgroundColor: Theme.of(context).colorScheme.tertiary,
+        child: const Icon(Icons.add),
+      ),
     );
   }
 }
