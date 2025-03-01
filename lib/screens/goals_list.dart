@@ -5,10 +5,12 @@ import '../models/goal.dart';
 
 class GoalsList extends StatefulWidget {
   final String type;
+  final int sortingType;
 
   const GoalsList({
     super.key,
     required this.type,
+    required this.sortingType,
   });
 
   @override
@@ -25,6 +27,29 @@ class _GoalsListState extends State<GoalsList> {
     _selectedDate = DateTime.now();
     _loadGoals();
   }
+
+  List<Goal> _sortGoals(List<Goal> goalsList, int sortingType) {
+    final List<String> _difficulties = ['⭐', '⭐⭐', '⭐⭐⭐', '⭐⭐⭐⭐', '⭐⭐⭐⭐⭐'];
+    final List<String> _importanceLevels = ['Low 🌱', 'Medium 🌿', 'High 🌳'];
+    final List<String> _statusOptions = ['Todo 📝', 'In Progress ⌛', 'Done ✅', 'Blocked ⛔'];
+
+    goalsList.sort((a, b) {
+      if (sortingType == 0) {
+        // Sort by Status
+        return _statusOptions.indexOf(a.status).compareTo(_statusOptions.indexOf(b.status));
+      } else if (sortingType == 1) {
+        // Sort by Difficulty (Reversed order - hardest first)
+        return _difficulties.indexOf(b.difficulty).compareTo(_difficulties.indexOf(a.difficulty));
+      } else if (sortingType == 2) {
+        // Sort by Importance (Reversed order - highest importance first)
+        return _importanceLevels.indexOf(b.importance).compareTo(_importanceLevels.indexOf(a.importance));
+      }
+      return 0; // No sorting if invalid type
+    });
+
+    return goalsList;
+  }
+
 
   Future<void> _loadGoals() async {
     final goals = await GoalStorage.loadGoals();
@@ -133,6 +158,7 @@ class _GoalsListState extends State<GoalsList> {
   Widget _buildNavigationBar() {
     final currentWeek = _getWeekOfYear(_selectedDate);
     final currentYear = _selectedDate.year;
+    final currentWeekRange = getWeekDateRange(_selectedDate);
     
     return Padding(
       padding: const EdgeInsets.all(12), 
@@ -176,7 +202,7 @@ class _GoalsListState extends State<GoalsList> {
                       ),
                       const SizedBox(height: 2), // Space between texts
                       Text(
-                        getWeekDateRange(DateTime.now()), // Get this week's range
+                        currentWeekRange,
                         style: const TextStyle(
                           color: Color(0xFF9CA3AF),
                           fontSize: 18.0,
@@ -227,11 +253,13 @@ class _GoalsListState extends State<GoalsList> {
           goal.year == currentYear
         ).toList();
 
+        List<Goal> sortedGoals = _sortGoals(weeklyGoals, widget.sortingType);
+
         return ListView.builder(
           padding: const EdgeInsets.all(8),
-          itemCount: weeklyGoals.length,
+          itemCount: sortedGoals.length,
           itemBuilder: (context, index) {
-            final goal = weeklyGoals[index];
+            final goal = sortedGoals[index];
             final relatedGoal = goal.relatedYearlyGoalId != null
                 ? _goals.firstWhere(
                     (g) => g.id == goal.relatedYearlyGoalId,

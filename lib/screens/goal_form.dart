@@ -141,6 +141,39 @@ class _GoalFormState extends State<GoalForm> {
                     onChanged: (value) => setState(() => _week = value),
                   ),
                   const SizedBox(height: 16),
+                  if (widget.yearlyGoals.isNotEmpty)
+                    DropdownButtonFormField<String?>(
+                      value: _relatedYearlyGoalId,
+                      style: const TextStyle(color: Color(0xFFF3F4F6)), // Match text color
+                      decoration: const InputDecoration(
+                        labelText: 'Related Yearly Goal (Optional)',
+                      ),
+                      dropdownColor: const Color(0xFF374151), // Match dropdown background color
+                      items: [
+                        const DropdownMenuItem(
+                          value: null,
+                          child: Text(
+                            'None',
+                            style: TextStyle(color: Colors.white), // Match text color inside dropdown
+                          ),
+                        ),
+                        ...widget.yearlyGoals.map((goal) {
+                          return DropdownMenuItem(
+                            value: goal.id,
+                            child: Text(
+                              goal.name,
+                              style: const TextStyle(color: Colors.white), // Match text color
+                            ),
+                          );
+                        }),
+                      ],
+                      onChanged: (value) {
+                        setState(() {
+                          _relatedYearlyGoalId = value;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 16),
                 ],
 
                 _buildDropdown(
@@ -152,7 +185,7 @@ class _GoalFormState extends State<GoalForm> {
                 const SizedBox(height: 16),
 
                 _buildDropdown(
-                  label: "Importance",
+                  label: "Priority",
                   value: _importance,
                   items: _importanceLevels,
                   onChanged: (value) => setState(() => _importance = value!),

@@ -24,3 +24,5 @@ android/app/debug.keystore
 .flutter-plugins
 .flutter-plugins-dependencies
 .metadata
+
+android/app/.cxx

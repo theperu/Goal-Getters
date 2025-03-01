@@ -70,17 +70,13 @@ class _DashboardState extends State<Dashboard> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.chevron_left),
-                        onPressed: () {},
-                        color: Colors.grey[400],
-                      ),
-                      Column(
+                child: SizedBox(
+                  width: double.infinity, // Makes the card take the full width
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Center( // Centers the column inside the card
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min, // Avoids unnecessary extra space
                         children: [
                           const Text(
                             'Weekly goals stats',
@@ -99,12 +95,7 @@ class _DashboardState extends State<Dashboard> {
                           ),
                         ],
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.chevron_right),
-                        onPressed: () {},
-                        color: Colors.grey[400],
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ),

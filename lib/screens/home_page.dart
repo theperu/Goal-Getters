@@ -11,6 +11,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
+  int _sortingType = 0; //0 is status, 1 is difficulty, 2 is priority
 
   final List<String> _titles = ["Weekly", "Yearly", "Dashboard"];
 
@@ -22,9 +23,9 @@ class _HomePageState extends State<HomePage> {
   Widget _buildBody() {
     switch (_selectedIndex) {
       case 0:
-        return const GoalsList(type: "weekly");
+        return GoalsList(type: "weekly", sortingType: _sortingType);
       case 1:
-        return const GoalsList(type: "yearly");
+        return GoalsList(type: "yearly", sortingType: _sortingType);
       case 2:
         return Dashboard();
       default:
@@ -64,18 +65,39 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         centerTitle: true,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: CircleAvatar(
-              backgroundColor: const Color(0xFF1F2937),
-              child: IconButton(
-                icon: const Icon(Icons.add, color: Colors.white),
-                onPressed: () {}, // Currently does nothing
-              ),
-            ),
-          ),
-        ],
+        actions: (_selectedIndex == 0 || _selectedIndex == 1)
+            ? [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: CircleAvatar(
+                    backgroundColor: const Color(0xFF1F2937),
+                    child: PopupMenuButton<int>(
+                      icon: const Icon(Icons.sort, color: Colors.white),
+                      color: const Color(0xFF1F2937), // Dark theme menu
+                      onSelected: (int value) {
+                        setState(() {
+                          _sortingType = value;
+                        });
+                      },
+                      itemBuilder: (BuildContext context) => [
+                        const PopupMenuItem(
+                          value: 0,
+                          child: Text("Sort by Status", style: TextStyle(color: Colors.white)),
+                        ),
+                        const PopupMenuItem(
+                          value: 1,
+                          child: Text("Sort by Difficulty", style: TextStyle(color: Colors.white)),
+                        ),
+                        const PopupMenuItem(
+                          value: 2,
+                          child: Text("Sort by Priority", style: TextStyle(color: Colors.white)),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ]
+            : [],
       ),
       body: Column(
         children: [

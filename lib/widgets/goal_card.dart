@@ -127,7 +127,7 @@ class _GoalCardState extends State<GoalCard> {
                         color: Color(0xFFF3F4F6), // White for "Importance:"
                       ),
                       children: [
-                        const TextSpan(text: 'Importance: '), // "Importance:" stays white
+                        const TextSpan(text: 'Priority: '), // "Importance:" stays white
                         TextSpan(
                           text: widget.goal.importance,
                           style: TextStyle(

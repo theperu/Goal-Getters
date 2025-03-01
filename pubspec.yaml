@@ -12,6 +12,12 @@ dependencies:
 
   shared_preferences: ^2.4.0
   google_fonts: ^6.2.1
+  flutter_launcher_icons: ^0.14.3
+
+flutter_icons:
+  image_path: "assets/Icon.png"
+  android: true
+  ios: true
 
 
 dev_dependencies:
