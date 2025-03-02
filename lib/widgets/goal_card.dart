@@ -34,6 +34,7 @@ class _GoalCardState extends State<GoalCard> {
       'In Progress ⌛': const Color(0xFF3B82F6),
       'Done ✅': const Color(0xFF10B981),
       'Blocked ⛔': const Color(0xFFEF4444),
+      'Archived 🗃️': const Color(0xFF9B4DCA)
     };
 
     return Card(
@@ -74,6 +75,7 @@ class _GoalCardState extends State<GoalCard> {
                       'In Progress ⌛',
                       'Done ✅',
                       'Blocked ⛔',
+                      'Archived 🗃️',
                     ].map((String status) {
                       return PopupMenuItem<String>(
                         value: status,

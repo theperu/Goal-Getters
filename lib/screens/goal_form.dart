@@ -29,7 +29,7 @@ class _GoalFormState extends State<GoalForm> {
 
   final List<String> _difficulties = ['⭐', '⭐⭐', '⭐⭐⭐', '⭐⭐⭐⭐', '⭐⭐⭐⭐⭐'];
   final List<String> _importanceLevels = ['Low 🌱', 'Medium 🌿', 'High 🌳'];
-  final List<String> _statusOptions = ['Todo 📝', 'In Progress ⌛', 'Done ✅', 'Blocked ⛔'];
+  final List<String> _statusOptions = ['Todo 📝', 'In Progress ⌛', 'Done ✅', 'Blocked ⛔', 'Archived 🗃️'];
   final List<String> _types = ['Weekly', 'Yearly'];
 
   @override

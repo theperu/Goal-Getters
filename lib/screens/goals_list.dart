@@ -31,7 +31,7 @@ class _GoalsListState extends State<GoalsList> {
   List<Goal> _sortGoals(List<Goal> goalsList, int sortingType) {
     final List<String> _difficulties = ['⭐', '⭐⭐', '⭐⭐⭐', '⭐⭐⭐⭐', '⭐⭐⭐⭐⭐'];
     final List<String> _importanceLevels = ['Low 🌱', 'Medium 🌿', 'High 🌳'];
-    final List<String> _statusOptions = ['Todo 📝', 'In Progress ⌛', 'Done ✅', 'Blocked ⛔'];
+    final List<String> _statusOptions = ['Todo 📝', 'In Progress ⌛', 'Done ✅', 'Blocked ⛔', 'Archived 🗃️'];
 
     goalsList.sort((a, b) {
       if (sortingType == 0) {
@@ -286,6 +286,7 @@ class _GoalsListState extends State<GoalsList> {
                 'In Progress ⌛': Color(0xFF15233C),
                 'Done ✅': Color(0xFF112930),
                 'Blocked ⛔': Color(0xFF271D2A),
+                'Archived 🗃️': Color(0xFF271D2A),
               },
             );
           },
@@ -310,6 +311,7 @@ class _GoalsListState extends State<GoalsList> {
               'In Progress ⌛': Color(0xFF15233C),
               'Done ✅': Color(0xFF112930),
               'Blocked ⛔': Color(0xFF271D2A),
+              'Archived 🗃️': Color(0xFF271D2A),
             },
           ),
         );

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../screens/dashboard.dart';
+import 'archive.dart';
 import 'goals_list.dart';
 
 class HomePage extends StatefulWidget {
@@ -13,7 +14,7 @@ class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
   int _sortingType = 0; //0 is status, 1 is difficulty, 2 is priority
 
-  final List<String> _titles = ["Weekly", "Yearly", "Dashboard"];
+  final List<String> _titles = ["Weekly", "Yearly", "Dashboard", "Archive"];
 
   @override
   void initState() {
@@ -28,6 +29,8 @@ class _HomePageState extends State<HomePage> {
         return GoalsList(type: "yearly", sortingType: _sortingType);
       case 2:
         return Dashboard();
+      case 3:
+        return Archive();
       default:
         return const SizedBox.shrink();
     }
@@ -152,6 +155,16 @@ class _HomePageState extends State<HomePage> {
               onTap: () {
                 setState(() {
                   _selectedIndex = 2;
+                });
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.archive_outlined, color: Colors.white),
+              title: const Text('Archive', style: TextStyle(color: Colors.white)),
+              onTap: () {
+                setState(() {
+                  _selectedIndex = 3;
                 });
                 Navigator.pop(context);
               },

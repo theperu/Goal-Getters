@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'screens/home_page.dart';
+import 'utils/goal_archiver.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  // Archive old goals
+  final archivedCount = await GoalArchiver.archiveOldGoals();
+  if (archivedCount > 0) {
+    print('Archived $archivedCount old goals');
+  }
   runApp(const GoalGettersApp());
 }
 
