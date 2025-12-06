@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../models/goal.dart';
+import '../utils/goal_helpers.dart';
+import '../widgets/archive_goal_card.dart';
 
 class Archive extends StatefulWidget {
-  const Archive({Key? key}) : super(key: key);
+  const Archive({super.key});
 
   @override
-  _ArchiveState createState() => _ArchiveState();
+  State<Archive> createState() => _ArchiveState();
 }
 
 class _ArchiveState extends State<Archive> {
@@ -26,8 +28,9 @@ class _ArchiveState extends State<Archive> {
     });
 
     final allGoals = await GoalStorage.loadGoals();
-    _archivedGoals =
-        allGoals.where((goal) => goal.status == 'Archived 🗃️').toList();
+    _archivedGoals = allGoals
+        .where((goal) => goal.status == 'Archived 🗃️' || goal.status == 'Rescheduled 🔄')
+        .toList();
 
     _archivedGoals.sort((a, b) {
       if (a.year != b.year) {
@@ -55,23 +58,6 @@ class _ArchiveState extends State<Archive> {
     return groupedGoals;
   }
 
-  String _formatWeekRange(int year, int week) {
-    final firstDayOfYear = DateTime(year, 1, 1);
-    final dayOffset = firstDayOfYear.weekday - 1;
-    final weekStart = firstDayOfYear.add(Duration(days: (week - 1) * 7 - dayOffset));
-    final weekEnd = weekStart.add(const Duration(days: 6));
-
-    return '${_formatDate(weekStart)} - ${_formatDate(weekEnd)}';
-  }
-
-  String _formatDate(DateTime date) {
-    final months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-    ];
-    return '${months[date.month - 1]} ${date.day}';
-  }
-
   static int _getWeekOfYear(DateTime date) {
     final firstDayOfYear = DateTime(date.year, 1, 1);
     final difference = date.difference(firstDayOfYear);
@@ -89,7 +75,7 @@ class _ArchiveState extends State<Archive> {
       context: context,
       builder: (context) {
         return SimpleDialog(
-          backgroundColor: Color(0xFF1F2937),
+          backgroundColor: const Color(0xFF1F2937),
           title: const Text('Reschedule to current or upcoming week', style: TextStyle(color: Colors.white)),
           children: [
             ...weekOptions.map((week) => 
@@ -98,12 +84,12 @@ class _ArchiveState extends State<Archive> {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
                   child: Text(
-                    'Week $week (${_formatWeekRange(currentYear, week)})',
+                    'Week $week (${formatWeekRange(currentYear, week)})',
                     style: const TextStyle(fontSize: 16, color: Colors.white),
                   ),
                 ),
               ),
-            ).toList(),
+            ),
             SimpleDialogOption(
               onPressed: () => Navigator.of(context).pop(),
               child: const Padding(
@@ -117,8 +103,25 @@ class _ArchiveState extends State<Archive> {
     );
 
     if (result != null) {
-      final updatedGoal = Goal(
+      // Update the original archived goal to show it was rescheduled
+      final rescheduledOriginal = Goal(
         id: goal.id,
+        name: goal.name,
+        difficulty: goal.difficulty,
+        importance: goal.importance,
+        status: 'Rescheduled 🔄',
+        notes: goal.notes,
+        type: goal.type,
+        relatedYearlyGoalId: goal.relatedYearlyGoalId,
+        week: goal.week,
+        year: goal.year,
+      );
+      
+      await GoalStorage.saveGoal(rescheduledOriginal);
+      
+      // Create a new goal in the new week with Todo status
+      final newGoal = Goal(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
         name: goal.name,
         difficulty: goal.difficulty,
         importance: goal.importance,
@@ -130,12 +133,14 @@ class _ArchiveState extends State<Archive> {
         year: result['year'],
       );
 
-      await GoalStorage.saveGoal(updatedGoal);
+      await GoalStorage.saveGoal(newGoal);
       _loadArchivedGoals();
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Goal rescheduled to Week ${result['week']}, ${result['year']}')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Goal rescheduled to Week ${result['week']}, ${result['year']}')),
+        );
+      }
     }
   }
 
@@ -206,7 +211,7 @@ class _ArchiveState extends State<Archive> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Week $week (${_formatWeekRange(year, week)})',
+                              'Week $week (${formatWeekRange(year, week)})',
                               style: const TextStyle(
                                 fontWeight: FontWeight.w500,
                                 fontSize: 16,
@@ -217,49 +222,11 @@ class _ArchiveState extends State<Archive> {
                             ...goalsInWeek.map((goal) {
                               final isExpanded = _expandedGoalIds.contains(goal.id);
 
-                              return Card(
-                                color: const Color(0xFF1F2937),
-                                margin: const EdgeInsets.symmetric(vertical: 4.0),
-                                elevation: 1,
-                                child: InkWell(
-                                  onTap: () => _toggleExpanded(goal.id),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(12.0),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Expanded(
-                                              child: Text(
-                                                goal.name,
-                                                style: const TextStyle(
-                                                  fontWeight: FontWeight.w500,
-                                                  fontSize: 16.0,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                            ),
-                                            IconButton(
-                                              icon: const Icon(Icons.calendar_today, size: 20, color: Colors.white),
-                                              onPressed: () => _rescheduleGoal(goal),
-                                              tooltip: 'Reschedule',
-                                            ),
-                                          ],
-                                        ),
-                                        if (isExpanded) ...[
-                                          const Divider(color: Colors.white),
-                                          const SizedBox(height: 8),
-                                          Text('Difficulty: ${goal.difficulty}', style: const TextStyle(color: Colors.white)),
-                                          const SizedBox(height: 4),
-                                          Text('Importance: ${goal.importance}', style: const TextStyle(color: Colors.white)),
-                                          const SizedBox(height: 8),
-                                        ],
-                                      ],
-                                    ),
-                                  ),
-                                ),
+                              return ArchiveGoalCard(
+                                goal: goal,
+                                isExpanded: isExpanded,
+                                onTap: () => _toggleExpanded(goal.id),
+                                onReschedule: () => _rescheduleGoal(goal),
                               );
                             }),
                           ],
@@ -276,3 +243,4 @@ class _ArchiveState extends State<Archive> {
     );
   }
 }
+

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:moon_design/moon_design.dart';
 import 'screens/home_page.dart';
 import 'utils/goal_archiver.dart';
 
@@ -8,7 +9,7 @@ Future<void> main() async {
   // Archive old goals
   final archivedCount = await GoalArchiver.archiveOldGoals();
   if (archivedCount > 0) {
-    print('Archived $archivedCount old goals');
+    debugPrint('Archived $archivedCount old goals');
   }
   runApp(const GoalGettersApp());
 }
@@ -20,19 +21,35 @@ class GoalGettersApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Goal Getters',
-      theme: ThemeData(
-        useMaterial3: true,
-        fontFamily: 'Poppins',
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF1F2937),
-          brightness: Brightness.dark,
-          surface: Colors.black54,
-          error: Colors.red,
-          onPrimary: const Color(0xFFF3F4F6),
-          secondary: const Color(0xFF66E0FF),
-          tertiary: const Color.fromARGB(255, 255, 206, 82),
+      theme: ThemeData.dark().copyWith(
+        scaffoldBackgroundColor: const Color(0xFF0A0E1A),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFF111827),
+          elevation: 0,
         ),
-        textTheme: GoogleFonts.poppinsTextTheme()
+        colorScheme: const ColorScheme.dark(
+          primary: Color(0xFF66E0FF),
+          secondary: Color.fromARGB(255, 255, 206, 82),
+          surface: Color(0xFF111827),
+          error: Color(0xFFEF4444),
+        ),
+        textTheme: GoogleFonts.poppinsTextTheme(ThemeData.dark().textTheme),
+        extensions: <ThemeExtension<dynamic>>[
+          MoonTokens.dark.copyWith(
+            colors: MoonColors.dark.copyWith(
+              goku: const Color(0xFF0A0E1A),
+              gohan: const Color(0xFF111827),
+              piccolo: const Color(0xFF1F2937),
+              hit: const Color(0xFF374151),
+              beerus: const Color(0xFF4B5563),
+              goten: const Color(0xFF6B7280),
+              bulma: const Color(0xFF66E0FF),
+              trunks: const Color.fromARGB(255, 255, 206, 82),
+              chichi: const Color(0xFFEF4444),
+              roshi: const Color(0xFF3B82F6),
+            ),
+          ),
+        ],
       ),
       home: const HomePage(),
       debugShowCheckedModeBanner: false,

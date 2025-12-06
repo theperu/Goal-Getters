@@ -1,5 +1,10 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import '../models/goal.dart';
+import '../widgets/section_header.dart';
+import '../widgets/mini_stat_card.dart';
+import '../widgets/linear_progress_section.dart';
+import '../widgets/circular_progress_card.dart';
+import '../widgets/styled_container.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -26,29 +31,67 @@ class _DashboardState extends State<Dashboard> {
 
   Map<String, dynamic> _processGoalsData() {
     int currentYear = DateTime.now().year;
+    int currentWeek = _getWeekNumber(DateTime.now());
 
-    // Filter only weekly goals for the current year
-    List<Goal> weeklyGoals = _goals.where((goal) =>
+    // Current week goals
+    List<Goal> currentWeekGoals = _goals.where((goal) =>
+        goal.type == 'Weekly' &&
+        goal.year == currentYear &&
+        goal.week == currentWeek).toList();
+
+    int weekTotal = currentWeekGoals.length;
+    int weekCompleted = currentWeekGoals.where((g) => g.status == 'Done ✅').length;
+    int weekInProgress = currentWeekGoals.where((g) => g.status == 'In Progress ⌛').length;
+    int weekBlocked = currentWeekGoals.where((g) => g.status == 'Blocked ⛔').length;
+    int weekTodo = currentWeekGoals.where((g) => g.status == 'Todo 📝').length;
+
+    double weekCompletionRate = weekTotal > 0
+        ? (weekCompleted / weekTotal)
+        : 0.0;
+
+    // All weekly goals for the year
+    List<Goal> allWeeklyGoals = _goals.where((goal) =>
         goal.type == 'Weekly' &&
         goal.year == currentYear).toList();
 
-    int totalGoals = weeklyGoals.length;
-    int completedGoals = weeklyGoals.where((g) => g.status == 'Done ✅').length;
-    int inProgressGoals = weeklyGoals.where((g) => g.status == 'In Progress ⌛').length;
-    int blockedGoals = weeklyGoals.where((g) => g.status == 'Blocked ⛔').length;
+    int yearTotal = allWeeklyGoals.length;
+    int yearCompleted = allWeeklyGoals.where((g) => g.status == 'Done ✅').length;
+    double yearCompletionRate = yearTotal > 0
+        ? (yearCompleted / yearTotal)
+        : 0.0;
 
-    // Calculate completion rate
-    double completionRate = totalGoals > 0
-        ? (completedGoals / totalGoals * 100).roundToDouble()
+    // Yearly goals
+    List<Goal> yearlyGoals = _goals.where((goal) =>
+        goal.type == 'Yearly' &&
+        goal.year == currentYear).toList();
+
+    int yearlyGoalsTotal = yearlyGoals.length;
+    int yearlyGoalsCompleted = yearlyGoals.where((g) => g.status == 'Done ✅').length;
+    double yearlyGoalsRate = yearlyGoalsTotal > 0
+        ? (yearlyGoalsCompleted / yearlyGoalsTotal)
         : 0.0;
 
     return {
-      'totalGoals': totalGoals,
-      'completedGoals': completedGoals,
-      'inProgressGoals': inProgressGoals,
-      'blockedGoals': blockedGoals,
-      'completionRate': completionRate,
+      'currentWeek': currentWeek,
+      'weekTotal': weekTotal,
+      'weekCompleted': weekCompleted,
+      'weekInProgress': weekInProgress,
+      'weekBlocked': weekBlocked,
+      'weekTodo': weekTodo,
+      'weekCompletionRate': weekCompletionRate,
+      'yearTotal': yearTotal,
+      'yearCompleted': yearCompleted,
+      'yearCompletionRate': yearCompletionRate,
+      'yearlyGoalsTotal': yearlyGoalsTotal,
+      'yearlyGoalsCompleted': yearlyGoalsCompleted,
+      'yearlyGoalsRate': yearlyGoalsRate,
     };
+  }
+
+  int _getWeekNumber(DateTime date) {
+    final firstDayOfYear = DateTime(date.year, 1, 1);
+    final difference = date.difference(firstDayOfYear);
+    return ((difference.inDays + firstDayOfYear.weekday) / 7).ceil();
   }
 
   @override
@@ -56,84 +99,92 @@ class _DashboardState extends State<Dashboard> {
     final data = _processGoalsData();
 
     return Scaffold(
-      backgroundColor: const Color(0xFF111827), // Background color
+      backgroundColor: const Color(0xFF111827),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Week Header
-              Card(
-                color: const Color(0xFF1F2937), // Updated card background
-                elevation: 1,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: SizedBox(
-                  width: double.infinity, // Makes the card take the full width
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Center( // Centers the column inside the card
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min, // Avoids unnecessary extra space
-                        children: [
-                          const Text(
-                            'Weekly goals stats',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                          Text(
-                            '${data['totalGoals']} total goals',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
+              // Current Week Progress Header
+              CircularProgressCard(
+                title: 'Week ${data['currentWeek']} Progress',
+                progressValue: data['weekCompletionRate'] as double,
+                completed: data['weekCompleted'] as int,
+                total: data['weekTotal'] as int,
+              ),
+              const SizedBox(height: 24),
+
+              // Current Week Status Breakdown
+              const SectionHeader(text: 'This Week'),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: MiniStatCard(
+                      title: 'Todo',
+                      value: data['weekTodo'].toString(),
+                      color: const Color(0xFF6B7280),
                     ),
                   ),
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Stats Grid
-              GridView.count(
-                crossAxisCount: 2,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                mainAxisSpacing: 16,
-                crossAxisSpacing: 16,
-                children: [
-                  _StatCard(
-                    title: 'Completed',
-                    value: data['completedGoals'].toString(),
-                    icon: Icons.check_circle,
-                    color: Colors.green,
-                  ),
-                  _StatCard(
-                    title: 'In Progress',
-                    value: data['inProgressGoals'].toString(),
-                    icon: Icons.pending,
-                    color: Colors.blue,
-                  ),
-                  _StatCard(
-                    title: 'Completion Rate',
-                    value: '${data['completionRate']}%',
-                    icon: Icons.trending_up,
-                    color: Colors.orange,
-                  ),
-                  _StatCard(
-                    title: 'Blocked',
-                    value: data['blockedGoals'].toString(),
-                    icon: Icons.error,
-                    color: Colors.red,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: MiniStatCard(
+                      title: 'In Progress',
+                      value: data['weekInProgress'].toString(),
+                      color: const Color(0xFF3B82F6),
+                    ),
                   ),
                 ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: MiniStatCard(
+                      title: 'Done',
+                      value: data['weekCompleted'].toString(),
+                      color: const Color(0xFF10B981),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: MiniStatCard(
+                      title: 'Blocked',
+                      value: data['weekBlocked'].toString(),
+                      color: const Color(0xFFEF4444),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 32),
+
+              // Year Overview
+              const SectionHeader(text: 'Year Overview'),
+              const SizedBox(height: 16),
+              StyledContainer(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Weekly Goals Progress
+                    LinearProgressSection(
+                      label: 'Weekly Goals',
+                      completed: data['yearCompleted'] as int,
+                      total: data['yearTotal'] as int,
+                      progressColor: const Color(0xFF66E0FF),
+                    ),
+                    const SizedBox(height: 24),
+                    // Yearly Goals Progress
+                    LinearProgressSection(
+                      label: 'Yearly Goals',
+                      completed: data['yearlyGoalsCompleted'] as int,
+                      total: data['yearlyGoalsTotal'] as int,
+                      progressColor: const Color(0xFFFFCE52),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 16),
             ],
@@ -144,63 +195,4 @@ class _DashboardState extends State<Dashboard> {
   }
 }
 
-class _StatCard extends StatelessWidget {
-  final String title;
-  final String value;
-  final IconData icon;
-  final Color color;
 
-  const _StatCard({
-    super.key,
-    required this.title,
-    required this.value,
-    required this.icon,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFF1F2937), // Updated card background
-        borderRadius: BorderRadius.circular(12), // Rounded corners
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.2),
-            blurRadius: 6,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Icon(icon, color: color, size: 40), // Slightly larger icon
-            const SizedBox(height: 12),
-            Text(
-              value,
-              style: const TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: Colors.grey[400],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
