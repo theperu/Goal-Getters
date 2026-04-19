@@ -10,13 +10,39 @@ dependencies:
   flutter:
     sdk: flutter
 
+  # State Management
+  flutter_riverpod: ^3.0.0
+  riverpod_annotation: ^3.0.0
+
+  # Database
+  sqflite: ^2.4.2
+  path_provider: ^2.1.5
+  path: ^1.9.1
+
+  # Local Storage
   shared_preferences: ^2.4.0
+
+  # Utilities
+  intl: ^0.20.2
+
+  # Calendar
+  add_2_calendar: ^3.0.1
+
+  # Notifications
+  flutter_local_notifications: ^18.0.1
+  flutter_timezone: ^3.0.1
+
+  # File operations
+  file_picker: ^8.1.6
+  share_plus: ^10.1.4
+  permission_handler: ^11.3.1
+
+  # UI (kept from original)
   google_fonts: ^6.2.1
   flutter_launcher_icons: ^0.14.3
-  moon_design: ^1.1.0
 
 flutter_icons:
-  image_path: "assets/Icon.png"
+  image_path: "assets/icon.png"
   android: true
   ios: true
 
@@ -26,5 +52,12 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^4.0.0
 
+  # Code Generation
+  build_runner: ^2.4.0
+  riverpod_generator: ^3.0.0
+  riverpod_lint: ^3.0.0
+
 flutter:
   uses-material-design: true
+  assets:
+    - assets/icon.png

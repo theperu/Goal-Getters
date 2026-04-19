@@ -1,55 +1,124 @@
-# 🚀 Goal Tracker App
+# Goal Getters
 
-## 🌟 Overview
+A mindful productivity app built with Flutter for setting weekly and yearly goals, building habits, and reflecting on your progress through journaling.
 
-Goal Tracker is a simple app designed to help users set, track, and manage both weekly and yearly goals efficiently. The app provides a minimalist interface to ensure ease of use while offering essential features for goal management.
+> This project is 100% vibecoded — every line of code, architecture decision, and design choice was generated through AI-assisted development.
 
-### ✅ Features
+## Features
 
-- 📅 Create and manage weekly and yearly goals.
+### Goals
+- **Yearly goals** — define high-level objectives for the year with icons, difficulty, and importance ratings
+- **Weekly goals** — break yearly goals into actionable weekly tasks, linked to their parent yearly goal
+- **Status tracking** — move goals through To Do, In Progress, and Done states
+- **Auto-archiving** — old open weekly goals are automatically archived at the start of each new week
 
-- 👀 View all goals upon opening the app.
+### Habits
+- **Daily habit tracking** — create recurring habits and check them off each day
+- **Streak tracking** — see current and best streaks at a glance
+- **Weekly consistency** — visual bar charts showing completion across the week
+- **Flexible scheduling** — assign habits to specific days of the week
 
-- ✏️ Edit, add, or remove goals at any time.
+### Journal
+- **Weekly reflections** — guided prompts to review wins, challenges, and intentions
+- **Mood tracking** — capture how your week felt with a simple mood selector
+- **Reflection history** — browse past entries on a calendar view
 
-- ✅ Mark goals as To Do, In Progress, or Done.
+### Today View
+- The home screen surfaces your weekly goals and habit check-ins for the current day, with a swipeable week selector to look ahead or back
 
-- 🎯 Assign difficulty and importance levels to each goal.
+### Vision Board
+- A dedicated screen for your yearly goals with progress indicators and detail sheets
 
-- 🔗 Weekly goals can be linked to a related yearly goal (optional).
+### Settings
+- Light and dark theme toggle
+- Calendar sync (add goals to device calendar)
+- Data backup and restore (JSON export/import)
+- Notification reminders
+- Test data seeder for development
 
-- 📝 Add notes to each goal for additional details.
+## Tech Stack
 
-### 📌 Goal Structure
+| Layer | Technology |
+|-------|-----------|
+| Framework | Flutter (Dart) |
+| State management | Riverpod with code generation |
+| Database | SQLite via `sqflite` with a sequential migration system |
+| Routing | Centralized `onGenerateRoute` with platform-adaptive transitions |
+| Theming | Token-based design system with light/dark support (Plus Jakarta Sans / Poppins) |
+| Notifications | `flutter_local_notifications` + `flutter_timezone` |
+| Calendar | `add_2_calendar` + `device_calendar` |
 
-Each goal consists of the following attributes:
+## Project Structure
 
-- 🏆 Goal Name – A short title for the goal.
+```
+lib/
+├── main.dart                  # Bootstrap: DB init, data migration, ProviderScope
+├── constants/                 # Style tokens, color palettes, goal/habit constants
+├── model/                     # Data entities (BaseEntity subclasses)
+│   ├── base_entity.dart
+│   ├── weekly_goal.dart
+│   ├── yearly_goal.dart
+│   ├── habit.dart
+│   ├── habit_completion.dart
+│   └── reflection.dart
+├── pages/                     # UI screens grouped by feature
+│   ├── today/                 # Daily view with goals + habit check-ins
+│   ├── goals/                 # Goal creation/editing form
+│   ├── habits/                # Habit list, form, and widgets
+│   ├── journal/               # Reflections, mood, calendar
+│   ├── vision/                # Yearly goal board
+│   └── settings/              # App preferences
+├── providers/                 # Riverpod state (goals, habits, reflections, theme)
+├── routes/                    # Route table and adaptive page builder
+├── services/
+│   ├── database/              # DB singleton, migration system, repositories
+│   │   ├── migrations/        # Sequential schema migrations (0001–0007)
+│   │   └── repositories/      # CRUD per entity
+│   ├── notification_service.dart
+│   ├── calendar_service.dart
+│   ├── backup_service.dart
+│   ├── goal_archiver.dart
+│   └── data_migration.dart    # One-time SharedPreferences → SQLite migration
+└── ui/                        # Theme, responsive utilities, reusable widgets
+    ├── theme/
+    ├── device.dart
+    ├── extensions.dart
+    └── widgets/
+```
 
-- 🎢 Difficulty – Level of challenge required to complete the goal.
+## Getting Started
 
-- ⭐ Importance – Significance of the goal.
+### Prerequisites
+- Flutter SDK `^3.5.4`
+- Dart SDK `^3.5.4`
 
-- 🚦 Status – Current state of the goal (To Do, In Progress, Done).
+### Run
+```bash
+flutter pub get
+dart run build_runner build --delete-conflicting-outputs
+flutter run
+```
 
-- 🔄 Related Yearly Goal – (For weekly goals) Can be linked to a yearly goal.
+### Build
+```bash
+flutter build apk --release    # Android
+flutter build ios --release     # iOS
+```
 
-- 📝 Notes – Additional information or details about the goal.
+## Database Migrations
 
-## 🏁 Getting Started
+Schema changes are handled by numbered migration files in `lib/services/database/migrations/`. To add a new migration:
 
-- 📥 Install and launch the app.
+1. Create `lib/services/database/migrations/NNNN_description.dart`
+2. Extend `Migration` with the next version number
+3. Register it in `migration_registry.dart`
+4. Run `dart run build_runner build --delete-conflicting-outputs`
 
-- ➕ Add new weekly and yearly goals.
+Never modify an existing migration — existing users may have already run it.
 
-- 🔄 Update goal progress as needed.
+## Future Enhancements
 
-- 🗑️ Edit, remove, or complete goals to keep track of achievements.
-
-## 🔮 Future Enhancements
-
-- 📊 Goal completion history and analytics.
-
-- 🔔 Notifications and reminders.
-
-- ☁️ Data backup and sync options.
+- Goal completion analytics and historical trends
+- Onboarding flow for first-time users
+- Biometric app lock
+- Cloud sync
